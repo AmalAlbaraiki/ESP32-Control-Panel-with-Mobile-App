@@ -20,7 +20,62 @@ o	The ESP32 is connected to the WiFi network and receives direction values via H
 o	The IP address of the ESP32 device can be found in the serial monitor after it successfully connects to the WiFi. For reference: "Use the device's local IP address, which can be found in the ESP32 serial monitor after successful connection to the WiFi network."
 4.	Testing:
 o	Once the mobile app and ESP32 are properly set up, testing was conducted by sending different control commands from the app to the ESP32 and ensuring the motor or robot responded accordingly.
-5.	Output:
+code:
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+WebServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+
+  Serial.println();
+  Serial.print("Connecting to WiFi...");
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  
+  Serial.println();
+  Serial.print("Connected! IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/move", HTTP_GET, handleMove);
+
+  server.begin();
+}
+
+void handleMove() {
+  String direction = server.arg("direction");
+  Serial.print("Received Direction: ");
+  Serial.println(direction);
+
+  if (direction == "forward") {
+    Serial.println(" Forward");
+  } else if (direction == "backward") {
+    Serial.println(" Backward");
+  } else if (direction == "left") {
+    Serial.println(" Left");
+  } else if (direction == "right") {
+    Serial.println("Right");
+  } else {
+    Serial.println("Unknown Direction");
+  }
+  
+  server.send(200, "text/plain", "Direction Received: " + direction);
+}
+
+void loop() {
+  server.handleClient();
+}
+
+ؤ
+6.	Output:
 
 1. Mobile App Interface:
 The mobile app displays a simple control panel with the following buttons:
@@ -64,9 +119,8 @@ Result:
 •	The system operates smoothly using WiFi instead of Bluetooth for better connectivity and ease of use.
 
   
-   ![لقطة شاشة 2025-02-03 151427](https://github.com/user-attachments/assets/dcdcee28-bcf2-45cd-8a09-894c53d79264)
 ![لقطة شاشة 2025-02-03 152250](https://github.com/user-attachments/assets/4ce77d89-24af-4b0c-a15a-60417c52144c)
-![لقطة شاشة 2025-02-03 134947](https://github.com/user-attachments/assets/9ac5953e-cd99-4059-8563-0120cf704419)
 
+<img width="864" alt="لقطة شاشة 2025-02-03 151427" src="https://github.com/user-attachments/assets/11c75466-df1e-469e-b98d-e4612f2b9e14" />
 
    
